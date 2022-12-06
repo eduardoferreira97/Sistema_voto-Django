@@ -1,23 +1,29 @@
-from django.http import HttpRequest, HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.views import generic
 
-from .models import Question
+from .models import Choice, Question
 
-# Create your views here.
 
-def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    context = { 'latest_question_list': latest_question_list,}
-    return render(request, 'poll/index.html',context)
+class IndexView(generic.ListView):
+    template_name = 'poll/index.html'
+    context_object_name = 'latest_question_list'
 
-def detail(request, question_id):
-    
-    question = get_object_or_404(Question,pk=question_id)
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Question.objects.order_by('-pub_date')[:5]
 
-    return render(request, 'poll/detail.html',{'question': question})
 
-def results(request, question_id):
-    responde = "You're loking at the results of questions %s"
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'poll/detail.html'
+
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'poll/result.html'
+
 
 def vote(request, question_id):
-    return HttpRequest("You're voting on question %s." % question_id)
+    ... # same as above, no changes needed.
